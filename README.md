@@ -1,159 +1,163 @@
-# Tahsilat - Ödeme Raporlama Otomasyonu
+# Tahsilat - Payment Reporting Automation Tool
 
-Bu uygulama, emlak geliştirme şirketleri için günlük ve aylık ödeme raporlarını otomatik olarak oluşturan masaüstü uygulamasıdır.
+A desktop application for automated daily and monthly payment report generation for real estate development companies.
 
-## 🚀 Özellikler
+## 🚀 Features
 
-### 📊 Veri İçe Aktarma
-- **CSV, XLSX, JSON** dosya formatlarını destekler
-- Manuel tablo girişi (Excel benzeri grid)
-- Otomatik veri doğrulama ve hata kontrolü
-- Çoklu sayfa desteği (XLSX için)
+### 📊 Data Import
+- Supports CSV, XLSX, JSON file formats
+- Manual table entry (Excel-like grid)
+- Automatic data validation and error checking
+- Multi-sheet support (for XLSX)
 
-### 💱 Döviz Dönüştürme
-- **TCMB** resmi döviz kurlarından otomatik TL→USD dönüştürme
-- Ödeme tarihinden **bir gün önceki** kur kullanımı
-- Yerel JSON önbellekleme ile performans optimizasyonu
-- Manuel kur girişi desteği
+### 💱 Currency Conversion
+- Automatic TL→USD conversion using official TCMB exchange rates
+- Uses exchange rate from one day before payment date
+- Local JSON caching for performance optimization
+- Manual exchange rate entry support
 
-### 💾 Yerel Depolama
-- Tüm veriler **JSON** formatında yerel olarak saklanır
-- Günlük yedekleme (snapshot) sistemi
-- Veri geri yükleme ve yedekleme yönetimi
-- Otomatik veri temizleme
+### 💾 Local Storage
+- All data stored locally in JSON format
+- Daily backup (snapshot) system
+- Data recovery and backup management
+- Automatic data cleanup
 
-### 📈 Rapor Oluşturma
-- **Günlük USD dağılımı** (müşteri ve proje bazında)
-- **Haftalık özet** (proje bazında)
-- **Aylık kanal dağılımı** (proje ve ödeme kanalı bazında)
-- **Günlük zaman çizelgesi** (ay içi günlük toplamlar)
-- **Ödeme türü özeti** (TL ve USD toplamları)
+### 📈 Report Generation
+- Daily USD distribution (by customer and project)
+- Weekly summary (by project)
+- Monthly channel distribution (by project and payment channel)
+- Daily timeline (daily totals within month)
+- Payment type summary (TL and USD totals)
 
-### 📄 Çıktı Formatları
-- **Excel (.xlsx)** - Tek sayfa, formatlanmış tablolar
-- **PDF** - Profesyonel rapor formatı
-- **Word (.docx)** - Düzenlenebilir belge formatı
+### 📄 Output Formats
+- Excel (.xlsx) - Single sheet, formatted tables
+- PDF - Professional report format
+- Word (.docx) - Editable document format
 
-### 🎯 Akıllı Algılama
-- Ödeme kanalı otomatik tespiti ("Hesap Adı"ndan)
-- Proje adı otomatik gruplama
-- Döviz türü ve dönüştürme ihtiyacı algılama
-- Ödeme türü kategorilendirme
+### 🎯 Smart Detection
+- Automatic payment channel detection (from "Account Name")
+- Automatic project name grouping
+- Currency type and conversion need detection
+- Payment type categorization
 
-## 🛠️ Kurulum
+## 🛠️ Installation
 
-### Gereksinimler
+### Requirements
 - Python 3.11+
-- Windows 10/11 (test edildi)
+- Windows 10/11 (tested)
 
-### Adımlar
-1. **Bağımlılıkları yükleyin:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Steps
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-2. **Uygulamayı çalıştırın:**
-   ```bash
-   python main.py
-   ```
+2. Run the application:
+```bash
+python main.py
+```
 
-## 📖 Kullanım
+## 📖 Usage
 
-### 1. Veri İçe Aktarma
-- **Dosya Seç** butonuna tıklayın
-- CSV, XLSX veya JSON dosyası seçin
-- Dosya formatını seçin (otomatik algılanır)
-- XLSX için sayfa seçin (gerekirse)
-- **İçe Aktar** butonuna tıklayın
+### 1. Data Import
+- Click "Select File" button
+- Choose CSV, XLSX or JSON file
+- Select file format (auto-detected)
+- Select sheet for XLSX (if needed)
+- Click "Import" button
 
-### 2. Manuel Veri Girişi
-- **Manuel Giriş** sekmesine geçin
-- Tabloya veri girin
-- **Satır Ekle** ile yeni satır ekleyin
-- Veriler otomatik olarak kaydedilir
+### 2. Manual Data Entry
+- Switch to "Manual Entry" tab
+- Enter data in table
+- Add new rows with "Add Row"
+- Data is automatically saved
 
-### 3. Rapor Oluşturma
-- Tarih aralığını seçin
-- İstediğiniz rapor türünü seçin:
-  - **Günlük Rapor** - Müşteri ve proje bazında günlük dağılım
-  - **Haftalık Rapor** - Proje bazında haftalık özet
-  - **Aylık Rapor** - Kanal ve proje bazında aylık dağılım
-  - **Tüm Raporlar** - Tüm formatlarda (Excel, PDF, Word)
+### 3. Report Generation
+- Select date range
+- Choose desired report type:
+  - Daily Report - Daily distribution by customer and project
+  - Weekly Report - Weekly summary by project
+  - Monthly Report - Monthly distribution by channel and project
+  - All Reports - All formats (Excel, PDF, Word)
 
-### 4. Veri Yönetimi
-- **Yenile** - Verileri yeniden yükle
-- **Dışa Aktar** - Verileri JSON/CSV olarak kaydet
-- **Günlük Yedekleme** - Anlık yedek oluştur
+### 4. Data Management
+- Refresh - Reload data
+- Export - Save data as JSON/CSV
+- Daily Backup - Create instant backup
 
-## 📊 Örnek Rapor Formatları
+## 📊 Sample Report Formats
 
-### Günlük USD Dağılımı
-| Müşteri | Proje | Pazartesi | Salı | ... | Genel Toplam |
-|---------|-------|-----------|------|-----|--------------|
-| Musa Özdoğan | MSM | $8,502 | | | $8,502 |
+### Daily USD Distribution
+| Customer | Project | Monday | Tuesday | ... | Total |
+|----------|---------|---------|---------|-----|-------|
+| John Doe | PROJECT_A | $8,502 | | | $8,502 |
 
+<<<<<<< HEAD
 ### Aylık Kanal Dağılımı
 | Kanal | PROJECT_A USD | MSM USD |
 |-------|---------|---------|
 | ÇARŞI | $296,556 | |
 | KUYUMCUKENT | $110,735 | |
 | OFİS | $15,000 | $8,501 |
+=======
+### Monthly Channel Distribution
+| Channel | PROJECT_A USD | PROJECT_B USD |
+|---------|---------------|---------------|
+| BANK_A | $296,556 | |
+| OFFICE | $15,000 | $8,501 |
+>>>>>>> dc92ef8c20b20db0ce30109437b63ed02b2f57aa
 
-## 🔧 Teknik Detaylar
+## 🔧 Technical Details
 
-### Proje Yapısı
+### Project Structure
 ```
 tahsilat/
-├── main.py              # Ana uygulama giriş noktası
-├── ui_main.py           # PySide6 GUI uygulaması
-├── data_import.py       # Veri içe aktarma modülü
-├── currency.py          # TCMB döviz kuru modülü
-├── storage.py           # JSON yerel depolama
-├── report_generator.py  # Rapor oluşturma modülü
-├── requirements.txt     # Python bağımlılıkları
-├── sample_data.csv      # Örnek CSV verisi
-├── sample_data.json     # Örnek JSON verisi
-└── README.md           # Bu dosya
+├── main.py              # Main application entry point
+├── ui_main.py           # PySide6 GUI application
+├── data_import.py       # Data import module
+├── currency.py          # TCMB exchange rate module
+├── storage.py           # JSON local storage
+├── report_generator.py  # Report generation module
+├── requirements.txt     # Python dependencies
+├── sample_data.csv      # Sample CSV data
+└── README.md           # This file
 ```
 
-### Desteklenen Veri Alanları
-- **Müşteri Adı Soyadı** - Müşteri bilgisi
-- **Tarih** - Ödeme tarihi (çeşitli formatlar)
-- **Proje Adı** - Proje bilgisi
-- **Hesap Adı** - Ödeme kanalı tespiti için
-- **Ödenen Tutar** - Ödeme miktarı
-- **Ödenen Döviz** - Para birimi (TL/USD)
-- **Ödenen Kur** - Döviz kuru (manuel giriş)
-- **Ödeme Durumu** - Ödeme durumu
+### Supported Data Fields
+- Customer Name - Customer information
+- Date - Payment date (various formats)
+- Project Name - Project information
+- Account Name - For payment channel detection
+- Amount Paid - Payment amount
+- Currency Paid - Currency (TL/USD)
+- Exchange Rate - Exchange rate (manual entry)
+- Payment Status - Payment status
 
-### Döviz Kuru Entegrasyonu
-- **TCMB XML API** kullanımı
-- Günlük otomatik kur çekme
-- Yerel JSON önbellekleme
-- Hata durumunda manuel kur girişi
+### Exchange Rate Integration
+- TCMB XML API usage
+- Daily automatic rate fetching
+- Local JSON caching
+- Manual rate entry in case of errors
 
-## 🐛 Hata Giderme
+## 🐛 Troubleshooting
 
-### Yaygın Sorunlar
-1. **Dosya okunamıyor** - Dosya formatını kontrol edin
-2. **Döviz kuru alınamıyor** - İnternet bağlantısını kontrol edin
-3. **Rapor oluşturulamıyor** - Çıktı klasörü yazma izinlerini kontrol edin
+### Common Issues
+- File cannot be read - Check file format
+- Exchange rate cannot be retrieved - Check internet connection
+- Report cannot be generated - Check output folder write permissions
 
-### Log Dosyaları
-Uygulama detaylı log kayıtları tutar. Hata durumunda konsol çıktısını kontrol edin.
+### Log Files
+The application keeps detailed log records. Check console output in case of errors.
 
-## 📝 Lisans
+## 📝 License
+This project is licensed under the MIT License.
 
-Bu proje MIT lisansı altında lisanslanmıştır.
+## 🤝 Contributing
+1. Fork the project
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 🤝 Katkıda Bulunma
-
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/AmazingFeature`)
-3. Commit yapın (`git commit -m 'Add some AmazingFeature'`)
-4. Push yapın (`git push origin feature/AmazingFeature`)
-5. Pull Request oluşturun
-
-## 📞 Destek
-
-Sorularınız için issue oluşturun veya iletişime geçin.
+## 📞 Support
+Create an issue for questions or contact support.
