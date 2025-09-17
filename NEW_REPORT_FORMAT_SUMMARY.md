@@ -71,7 +71,7 @@ def generate_customer_date_table(self, payments: List[PaymentData],
 | Müşteri Adı Soyadı | Proje | 10.09.2025 | 11.09.2025 | 12.09.2025 | Genel Toplam |
 |---------------------|-------|------------|------------|------------|--------------|
 | Musa Özdoğan       | MSM   | $1,000     |            | $500       | $1,500       |
-| Mustafa Çelik      | MKM   |            | $1,500     |            | $1,500       |
+| Mustafa Çelik      | PROJECT_A   |            | $1,500     |            | $1,500       |
 | **Genel Toplam**   |       | **$1,000** | **$1,500** | **$500**   | **$3,000**   |
 
 ## ✅ Requirements Fulfilled

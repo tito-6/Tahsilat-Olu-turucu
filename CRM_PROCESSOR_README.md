@@ -269,7 +269,7 @@ processor.channel_mappings['Custom Bank'] = 'Custom Bank'
 ```csv
 Tarih,Müşteri Adı Soyadı,Proje Adı,Ödenen Tutar,Ödenen Döviz,Ödeme Kanalı
 2024-01-15,Ahmet Yılmaz,MSM,15000.50,TL,Yapı Kredi TL
-2024-01-16,Fatma Demir,MKM,25000.00,USD,Çarşı USD
+2024-01-16,Fatma Demir,PROJECT_A,25000.00,USD,Çarşı USD
 ```
 
 ### Example 2: Alternative Format

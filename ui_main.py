@@ -1875,7 +1875,7 @@ QComboBox:focus {
         return page
     
     def create_monthly_report_page(self):
-        """Create the monthly report page with MKM, MSM, and Total tables"""
+        """Create the monthly report page with PROJECT_A, PROJECT_B, and Total tables"""
         page = QWidget()
         layout = QVBoxLayout(page)
         layout.setSpacing(20)
@@ -2379,6 +2379,7 @@ QComboBox:focus {
         self.format_combo.addItems(["Excel (.xlsx)", "CSV (.csv)", "JSON (.json)"])
         self.format_combo.setMinimumHeight(50)
         self.format_combo.setToolTip("Dosya formatını seçiniz")
+        self.format_combo.currentTextChanged.connect(self.on_format_changed)
         import_layout.addRow(format_label, self.format_combo)
         
         # Sheet selection (for XLSX) - initially hidden
@@ -3743,14 +3744,17 @@ QComboBox:focus {
         
         # Extract format from combo box text (e.g., "CSV (.csv)" -> "csv")
         format_text = self.format_combo.currentText().lower()
+        logger.info(f"Selected format text: '{format_text}'")
+        
         if 'csv' in format_text:
             file_format = 'csv'
-        elif 'xlsx' in format_text or 'xls' in format_text:
+        elif 'xlsx' in format_text or 'xls' in format_text or 'excel' in format_text:
             file_format = 'xlsx'
         elif 'json' in format_text:
             file_format = 'json'
         else:
             file_format = format_text.split()[0]  # fallback to first word
+            logger.warning(f"Unknown format, using fallback: '{file_format}'")
         
         sheet_name = self.sheet_combo.currentText() if self.sheet_widget.isVisible() else None
         
@@ -3781,12 +3785,20 @@ QComboBox:focus {
         logger.info("Creating import worker...")
         existing_payments = self.storage.get_all_payments()
         # Get selected columns from dropdowns
-        amount_column = self.amount_column_combo.currentText()
-        currency_column = self.currency_column_combo.currentText()
-        self.import_worker = ImportWorker(
-            file_path, file_format, sheet_name, existing_payments,
-            amount_column=amount_column, currency_column=currency_column
-        )
+        amount_column = self.amount_column_combo.currentText() if hasattr(self, 'amount_column_combo') else None
+        currency_column = self.currency_column_combo.currentText() if hasattr(self, 'currency_column_combo') else None
+        
+        try:
+            self.import_worker = ImportWorker(
+                file_path, file_format, sheet_name, existing_payments,
+                amount_column=amount_column, currency_column=currency_column
+            )
+        except Exception as e:
+            logger.error(f"Failed to create import worker: {e}")
+            QMessageBox.critical(self, "İçe Aktarma Hatası", 
+                               f"Veri içe aktarma başlatılamadı:\n\n{str(e)}\n\n"
+                               f"Lütfen dosya formatını kontrol edin.")
+            return
         self.import_worker.progress.connect(self.progress_bar.setValue)
         self.import_worker.status.connect(self.status_bar.showMessage)
         self.import_worker.finished.connect(self.on_import_preview_finished)
@@ -3808,14 +3820,19 @@ QComboBox:focus {
         
         # Show process and clear buttons
         self.process_btn.setVisible(True)
-        self.clear_btn.setVisible(True)
+        if hasattr(self, 'clear_btn'):
+            self.clear_btn.setVisible(True)
         
-        # Show success message
-        QMessageBox.information(self, "Başarılı", 
-                               f"Veri başarıyla yüklendi!\n\n"
-                               f"Toplam kayıt: {len(valid_payments)}\n"
-                               f"Uyarı sayısı: {len(warnings)}\n\n"
-                               f"Veriyi işlemek için 'Veriyi İşle' butonuna tıklayın.")
+        # Add a prominent notification
+        self.show_processing_notification(len(valid_payments))
+        
+        # Show success message with clear instructions
+        QMessageBox.information(self, "Veri Başarıyla Yüklendi!", 
+                               f"✅ Toplam kayıt: {len(valid_payments)}\n"
+                               f"⚠️ Uyarı sayısı: {len(warnings)}\n\n"
+                               f"📋 Veri önizleme tablosunda görüntüleniyor.\n"
+                               f"🔄 Veriyi sisteme eklemek için 'Veriyi İşle' butonuna tıklayın.\n\n"
+                               f"💡 İpucu: Veriyi işledikten sonra 'Veri Tablosu' sekmesinde görebilirsiniz.")
     
     def show_data_preview(self, payments: List[PaymentData], warnings: List[str]):
         """Show data preview in modern table with full scrolling support"""
@@ -3922,11 +3939,19 @@ QComboBox:focus {
         # Process the data using the original import finished method
         self.on_import_finished(self.preview_payments, self.preview_warnings)
         
+        # Show success message
+        QMessageBox.information(self, "Veri İşlendi!", 
+                               f"✅ {len(self.preview_payments)} kayıt başarıyla sisteme eklendi!\n\n"
+                               f"📊 Veriyi görmek için 'Veri Tablosu' sekmesine geçin.")
+        
         # Hide preview elements
         self.data_preview_table.setVisible(False)
         self.preview_info_label.setVisible(False)
         self.process_btn.setVisible(False)
-        self.clear_btn.setVisible(False)
+        if hasattr(self, 'clear_btn'):
+            self.clear_btn.setVisible(False)
+        if hasattr(self, 'processing_notification'):
+            self.processing_notification.setVisible(False)
         
         # Clear preview data
         self.preview_payments = None
@@ -3938,17 +3963,53 @@ QComboBox:focus {
         self.preview_info_label.setVisible(False)
         self.duplicate_info_label.setVisible(False)
         self.process_btn.setVisible(False)
-        self.clear_btn.setVisible(False)
+        if hasattr(self, 'clear_btn'):
+            self.clear_btn.setVisible(False)
         
         # Clear preview data
         self.preview_payments = None
         self.preview_warnings = None
         self.original_preview_data = []
+    
+    def show_processing_notification(self, record_count: int):
+        """Show a prominent notification that data is ready to be processed"""
+        # Create a notification widget if it doesn't exist
+        if not hasattr(self, 'processing_notification'):
+            self.processing_notification = QLabel()
+            self.processing_notification.setStyleSheet("""
+                QLabel {
+                    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, 
+                                               stop:0 #FFC107, stop:1 #FF9800);
+                    color: #212529;
+                    font-size: 14px;
+                    font-weight: 700;
+                    padding: 12px 20px;
+                    border: 2px solid #FF8F00;
+                    border-radius: 8px;
+                    margin: 5px;
+                }
+            """)
+            self.processing_notification.setAlignment(Qt.AlignCenter)
+            self.processing_notification.setVisible(False)
+            
+            # Add to the import section layout
+            if hasattr(self, 'import_layout'):
+                self.import_layout.addRow("", self.processing_notification)
         
-        # Clear file path
-        self.file_path_edit.clear()
-        
-        QMessageBox.information(self, "Temizlendi", "Önizleme ekranı temizlendi.")
+        # Show the notification
+        self.processing_notification.setText(
+            f"🔄 {record_count} kayıt önizleme tablosunda hazır! "
+            f"Veriyi sisteme eklemek için 'Veriyi İşle' butonuna tıklayın."
+        )
+        self.processing_notification.setVisible(True)
+    
+    def on_format_changed(self, format_text: str):
+        """Handle format combo box change to show/hide sheet selection"""
+        if hasattr(self, 'sheet_widget'):
+            if 'xlsx' in format_text.lower() or 'excel' in format_text.lower():
+                self.sheet_widget.setVisible(True)
+            else:
+                self.sheet_widget.setVisible(False)
     
     def filter_preview_table(self):
         """Filter the preview table based on search text and column selection"""
@@ -4951,7 +5012,7 @@ QComboBox:focus {
             return container
             
         # Calculate totals by payment type
-        payment_types = ["Banka Havalesi", "Nakit", "Çek"]
+        payment_types = ["BANK_TRANSFER", "Nakit", "Çek"]
         totals_original = {}
         totals_usd = {}
         
@@ -4985,12 +5046,12 @@ QComboBox:focus {
                         "KASA" in (payment.account_name or "").upper()):
                         totals_original[payment_type] += payment.amount
                         totals_usd[payment_type] += usd_amount
-                elif payment_type == "Banka Havalesi":
+                elif payment_type == "BANK_TRANSFER":
                     if (payment.payment_channel == "BANKA HAVALESİ" or
                         "YAPI" in (payment.account_name or "").upper() or
                         "HAVALE" in (payment.account_name or "").upper() or
                         "TRANSFER" in (payment.account_name or "").upper() or
-                        (payment.tahsilat_sekli == "Banka Havalesi" and not payment.is_check_payment)):
+                        (payment.tahsilat_sekli == "BANK_TRANSFER" and not payment.is_check_payment)):
                         totals_original[payment_type] += payment.amount
                         totals_usd[payment_type] += usd_amount
         
@@ -5398,9 +5459,9 @@ QComboBox:focus {
     def create_payment_type_table(self, payments, project_filter, title):
         """Create a payment type table for specific project or total"""
         # Filter payments by project
-        if project_filter == "MKM":
+        if project_filter == "PROJECT_A":
             filtered_payments = [p for p in payments if p.project_name and "KUYUM" in p.project_name.upper()]
-        elif project_filter == "MSM":
+        elif project_filter == "PROJECT_B":
             filtered_payments = [p for p in payments if p.project_name and "SANAYİ" in p.project_name.upper()]
         else:  # TOTAL
             filtered_payments = payments
@@ -5408,14 +5469,14 @@ QComboBox:focus {
         # Create table widget
         table = QTableWidget()
         table.setColumnCount(3)
-        table.setRowCount(4)  # Banka Havalesi, Nakit, Çek, Total
+        table.setRowCount(4)  # BANK_TRANSFER, Nakit, Çek, Total
         
         # Set headers
         headers = ["Ödeme Nedeni", "Orijinal Tutar", "USD Eşdeğeri"]
         table.setHorizontalHeaderLabels(headers)
         
         # Calculate totals by payment type
-        payment_types = ["Banka Havalesi", "Nakit", "Çek"]
+        payment_types = ["BANK_TRANSFER", "Nakit", "Çek"]
         totals_original = {}
         totals_usd = {}
         
@@ -5443,13 +5504,13 @@ QComboBox:focus {
                         totals_original[payment_type] += payment.original_amount
                         if payment.usd_amount > 0:
                             totals_usd[payment_type] += payment.usd_amount
-                elif payment_type == "Banka Havalesi":
+                elif payment_type == "BANK_TRANSFER":
                     # Bank transfer payments - check payment_channel for proper mapping
                     if (payment.payment_channel == "BANKA HAVALESİ" or
                         "YAPI" in (payment.account_name or "").upper() or
                         "HAVALE" in (payment.account_name or "").upper() or
                         "TRANSFER" in (payment.account_name or "").upper() or
-                        (payment.tahsilat_sekli == "Banka Havalesi" and not payment.is_check_payment)):
+                        (payment.tahsilat_sekli == "BANK_TRANSFER" and not payment.is_check_payment)):
                         totals_original[payment_type] += payment.original_amount
                         if payment.usd_amount > 0:
                             totals_usd[payment_type] += payment.usd_amount

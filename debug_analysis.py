@@ -21,18 +21,18 @@ def test_analysis_methods():
         PaymentData({
             'Müşteri Adı Soyadı': 'Burak Bingölo',
             'Tarih': '2025-09-15',
-            'Proje Adı': 'Model Sanayi Merkezi 3. Etap',
+            'Proje Adı': 'COMPANY_B 3. Etap',
             'Hesap Adı': 'Yapı Kredi TL',
             'Ödenen Tutar': 9920.32,
             'Ödenen Döviz': 'USD',
-            'Tahsilat Şekli': 'Banka Havalesi',
+            'Tahsilat Şekli': 'BANK_TRANSFER',
             'Çek Tutarı': 0,
             'Çek Vade Tarihi': ''
         }),
         PaymentData({
             'Müşteri Adı Soyadı': 'Kamer Ergün',
             'Tarih': '2025-09-15',
-            'Proje Adı': 'Model Kuyum Merkezi',
+            'Proje Adı': 'COMPANY_A',
             'Hesap Adı': 'Kasa USD',
             'Ödenen Tutar': 121705.00,
             'Ödenen Döviz': 'USD',
@@ -43,11 +43,11 @@ def test_analysis_methods():
         PaymentData({
             'Müşteri Adı Soyadı': 'Odak Kimya',
             'Tarih': '2025-09-16',
-            'Proje Adı': 'Model Kuyum Merkezi',
+            'Proje Adı': 'COMPANY_A',
             'Hesap Adı': 'Yapı Kredi USD',
             'Ödenen Tutar': 7000.00,
             'Ödenen Döviz': 'USD',
-            'Tahsilat Şekli': 'Banka Havalesi',
+            'Tahsilat Şekli': 'BANK_TRANSFER',
             'Çek Tutarı': 0,
             'Çek Vade Tarihi': ''
         })

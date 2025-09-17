@@ -45,8 +45,8 @@ def test_weekly_monthly_display():
             logger.info("✅ Contains Payment Type Analysis")
             
             # Extract the analysis data from HTML (basic check)
-            if "Banka Havalesi" in html_content:
-                logger.info("✅ Contains Banka Havalesi data")
+            if "BANK_TRANSFER" in html_content:
+                logger.info("✅ Contains BANK_TRANSFER data")
             if "Nakit" in html_content:
                 logger.info("✅ Contains Nakit data")
             if "Çek" in html_content:

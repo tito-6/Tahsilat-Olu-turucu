@@ -20,7 +20,7 @@ class PaymentData:
     def __init__(self, data: Dict[str, Any], amount_column: str = None, currency_column: str = None):
         self.customer_name = data.get('Müşteri Adı Soyadı', '')
         self.date = self._parse_date(data.get('Tarih', ''))
-        self.project_name = data.get('Proje Adı', '')
+        self.project_name = data.get('Proje Adı', '') or 'Genel Proje'
         self.account_name = data.get('Hesap Adı', '')
         # Use selected columns if provided, else fallback to default
         amount_key = amount_column if amount_column else 'Ödenen Tutar'
@@ -150,11 +150,14 @@ class PaymentData:
         # Remove common separators and currency symbols
         amount_str = amount_str.replace(',', '').replace(' ', '').replace('₺', '').replace('$', '').replace('€', '')
         
-        # Extract number from strings like "Ödenen Tutar(Σ:11,059,172.00)"
-        if '(' in amount_str and 'Σ:' in amount_str:
+        # Extract number from strings like "Ödenen Tutar(?:9,835,209.80)" or "Ödenen Tutar(Σ:11,059,172.00)"
+        if '(' in amount_str and ('?:' in amount_str or 'Σ:' in amount_str):
             try:
-                # Extract the part after Σ:
-                start = amount_str.find('Σ:') + 2
+                # Extract the part after ?: or Σ:
+                if '?:' in amount_str:
+                    start = amount_str.find('?:') + 2
+                else:
+                    start = amount_str.find('Σ:') + 2
                 end = amount_str.find(')', start)
                 if end == -1:
                     end = len(amount_str)
@@ -178,9 +181,9 @@ class PaymentData:
         # More robust channel detection with multiple character variations
         # Handle Turkish character encoding issues (ş, ç, ı, etc.)
         
-        # KUYUMCUKENT detection - check for various spellings
-        if any(keyword in account_upper for keyword in ['KUYUMCUKENT', 'KUYUMCU KENT', 'KUYUMCU_KENT']):
-            return 'KUYUMCUKENT'
+        # LOCATION_B detection - check for various spellings
+        if any(keyword in account_upper for keyword in ['LOCATION_B', 'KUYUMCU KENT', 'KUYUMCU_KENT']):
+            return 'LOCATION_B'
         
         # ÇARŞI detection - handle multiple character encodings
         elif any(keyword in account_upper for keyword in [
@@ -190,7 +193,7 @@ class PaymentData:
         
         # OFİS detection
         elif any(keyword in account_upper for keyword in [
-            'OFİS', 'OFIS', 'OFÝS', 'MERKEZ', 'OFFICE'
+            'OFİS', 'LOCATION_C', 'OFÝS', 'MERKEZ', 'OFFICE'
         ]):
             return 'OFİS'
         
@@ -234,7 +237,7 @@ class PaymentData:
             if 'NAKİT' in tahsilat_upper or 'NAKIT' in tahsilat_upper:
                 return 'Nakit'
             elif 'BANKA' in tahsilat_upper or 'HAVALE' in tahsilat_upper:
-                return 'Banka Havalesi'
+                return 'BANK_TRANSFER'
             elif 'ÇEK' in tahsilat_upper or 'CEK' in tahsilat_upper:
                 return 'Çek'
         
@@ -249,7 +252,7 @@ class PaymentData:
             'YAPI KREDİ', 'YAPI KREDI', 'YAPIKREDÝ', 'YAPIKREDI', 'YAPI'
         ]):
             logger.info(f"Detected Yapı Kredi payment: {self.account_name}")
-            return 'Banka Havalesi'
+            return 'BANK_TRANSFER'
         elif 'KASA' in account_upper and 'NAKİT' not in account_upper:
             return 'Nakit'  # Kasa accounts are usually cash
         elif self.is_check_payment:
@@ -257,12 +260,12 @@ class PaymentData:
         elif any(keyword in account_upper for keyword in [
             'HAVALE', 'TRANSFER', 'BANKA', 'GARANTI', 'İŞ BANKASI'
         ]):
-            return 'Banka Havalesi'
+            return 'BANK_TRANSFER'
         
-        # Default to Banka Havalesi for TL payments from bank accounts
+        # Default to BANK_TRANSFER for TL payments from bank accounts
         if self.is_tl_payment and account_upper:
-            logger.info(f"Defaulting TL payment to Banka Havalesi: {self.account_name}")
-            return 'Banka Havalesi'
+            logger.info(f"Defaulting TL payment to BANK_TRANSFER: {self.account_name}")
+            return 'BANK_TRANSFER'
         
         return 'Diğer'
     
@@ -432,13 +435,13 @@ class DataImporter:
         self.required_fields = [
             'Müşteri Adı Soyadı',
             'Tarih',
-            'Proje Adı',
             'Hesap Adı',
             'Ödenen Tutar'
         ]
         
         # Optional fields for better functionality
         self.optional_fields = [
+            'Proje Adı',
             'Tahsilat Şekli',
             'Çek Tutarı',
             'Çek Vade Tarihi',

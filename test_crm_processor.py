@@ -16,10 +16,10 @@ def create_test_data():
     test1_data = {
         'Tarih': ['2024-01-15', '2024-01-16', '2024-01-17'],
         'Müşteri Adı Soyadı': ['Ahmet Yılmaz', 'Fatma Demir', 'Mehmet Kaya'],
-        'Proje Adı': ['MSM', 'MKM', 'MSM'],
+        'Proje Adı': ['PROJECT_B', 'PROJECT_A', 'PROJECT_B'],
         'Ödenen Tutar': [15000.50, 25000.00, 18000.75],
         'Ödenen Döviz': ['TL', 'TL', 'USD'],
-        'Ödeme Kanalı': ['Yapı Kredi TL', 'Çarşı USD', 'Kuyumcukent USD']
+        'Ödeme Kanalı': ['Yapı Kredi TL', 'Çarşı USD', 'LOCATION_B USD']
     }
     
     df1 = pd.DataFrame(test1_data)
@@ -30,10 +30,10 @@ def create_test_data():
     test2_data = {
         'Payment Date': ['2024-01-18', '2024-01-19', '2024-01-20'],
         'Customer Name': ['Ali Veli', 'Zeynep Arslan', 'Mustafa Özkan'],
-        'Project Code': ['Model Sanayi Merkezi', 'Model Kuyum Merkezi', 'Model Sanayi Merkezi'],
+        'Project Code': ['COMPANY_B', 'COMPANY_A', 'COMPANY_B'],
         'Amount (TL)': [12000.00, 30000.50, 22000.25],
         'Currency Type': ['Turkish Lira', 'Turkish Lira', 'US Dollar'],
-        'Payment Method': ['Garanti TL', 'Ofis Kasa', 'İş Bankası TL']
+        'Payment Method': ['Garanti TL', 'LOCATION_C Kasa', 'İş Bankası TL']
     }
     
     df2 = pd.DataFrame(test2_data)
@@ -44,10 +44,10 @@ def create_test_data():
     test3_data = {
         '  tarih  ': ['2024-01-21', '2024-01-22', '2024-01-23'],
         'MÜŞTERİ ADI SOYADI': ['Elif Yıldız', 'Hasan Kılıç', 'Ayşe Çelik'],
-        'proje adı': ['MSM', 'MKM', 'MSM'],
+        'proje adı': ['PROJECT_B', 'PROJECT_A', 'PROJECT_B'],
         'Ödenen Tutar(Σ:11,059,172.00)': [35000.00, 28000.50, 19000.75],
         'ödEnEn dÖvİz': ['TL', 'USD', 'TL'],
-        'ÖDEME KANALI': ['Yapı Kredi USD', 'Çarşı USD', 'Kuyumcukent USD']
+        'ÖDEME KANALI': ['Yapı Kredi USD', 'Çarşı USD', 'LOCATION_B USD']
     }
     
     df3 = pd.DataFrame(test3_data)
@@ -71,10 +71,10 @@ def create_test_data():
     test5_data = {
         'İşlem Tarihi': ['15.01.2024', '16/01/2024', '2024-01-17'],
         'Müşteri Bilgisi': ['Musa Özdoğan', 'Fatma Demir', 'Mehmet Kaya'],
-        'Proje Kodu': ['Model Sanayi Merkezi', 'Model Kuyum Merkezi', 'Model Sanayi Merkezi'],
+        'Proje Kodu': ['COMPANY_B', 'COMPANY_A', 'COMPANY_B'],
         'Tutar (TL)': ['25,000.50', '30,000.00', '18,500.75'],
         'Para Birimi': ['Türk Lirası', 'Türk Lirası', 'Dolar'],
-        'Hesap Adı': ['Yapı Kredi Bankası TL', 'Çarşı Döviz Hesabı', 'Kuyumcukent USD Hesabı']
+        'Hesap Adı': ['Yapı Kredi Bankası TL', 'Çarşı Döviz Hesabı', 'LOCATION_B USD Hesabı']
     }
     
     df5 = pd.DataFrame(test5_data)

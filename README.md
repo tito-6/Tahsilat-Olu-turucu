@@ -93,7 +93,7 @@ Bu uygulama, emlak geliştirme şirketleri için günlük ve aylık ödeme rapor
 | Musa Özdoğan | MSM | $8,502 | | | $8,502 |
 
 ### Aylık Kanal Dağılımı
-| Kanal | MKM USD | MSM USD |
+| Kanal | PROJECT_A USD | MSM USD |
 |-------|---------|---------|
 | ÇARŞI | $296,556 | |
 | KUYUMCUKENT | $110,735 | |

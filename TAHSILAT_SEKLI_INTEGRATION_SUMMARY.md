@@ -111,7 +111,7 @@ The system now recognizes these column names for "Tahsilat Şekli":
 ```csv
 Müşteri Adı Soyadı,Tarih,Proje Adı,Ödenen Tutar,Tahsilat Şekli,Çek Vade Tarihi
 Musa Özdoğan,01.09.2025,MSM,1000,Çek,01.03.2026
-Ali Yılmaz,02.09.2025,MKM,500,Nakit,
+Ali Yılmaz,02.09.2025,PROJECT_A,500,Nakit,
 Ayşe Kaya,03.09.2025,MSM,750,Çek,03.03.2026
 ```
 

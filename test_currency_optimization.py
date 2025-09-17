@@ -27,11 +27,11 @@ def create_test_payments():
         # Create payment data dictionary with Turkish field names
         payment_data = {
             'Müşteri Adı Soyadı': f"Test Customer {i+1}",
-            'Proje Adı': f"MKM Test Project {i+1}",
+            'Proje Adı': f"PROJECT_A Test Project {i+1}",
             'Ödenen Tutar': 1000.0 + (i * 100),  # Varying amounts
             'Tarih': payment_date,
             'Hesap Adı': "Test Account",
-            'Tahsilat Şekli': "Banka Havalesi",
+            'Tahsilat Şekli': "BANK_TRANSFER",
             'Ödenen Döviz': 'TL',  # All TL payments to test conversion
             'Ödeme Durumu': 'Tamamlandı'
         }

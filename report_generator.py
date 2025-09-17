@@ -106,7 +106,7 @@ class ReportGenerator:
             'customer': 'Müşteri Adı Soyadı',
             'project': 'Proje Adı',
             'account': 'Hesap Adı',
-            'payment_type': 'Banka Havalesi',
+            'payment_type': 'BANK_TRANSFER',
             'currency': 'TL',
             'description': 'Açıklama ve detaylar'
         }
@@ -188,7 +188,7 @@ class ReportGenerator:
         return summary
     
     def generate_monthly_summary(self, payments: List[PaymentData]) -> pd.DataFrame:
-        """Generate monthly summary by project and payment type (Banka Havalesi, Nakit, Çek)"""
+        """Generate monthly summary by project and payment type (BANK_TRANSFER, Nakit, Çek)"""
         if not payments:
             return pd.DataFrame()
         
@@ -242,7 +242,7 @@ class ReportGenerator:
             if 'NAKİT' in tahsilat_upper or 'NAKIT' in tahsilat_upper:
                 return 'Nakit'
             elif 'BANKA' in tahsilat_upper or 'HAVALE' in tahsilat_upper:
-                return 'Banka Havalesi'
+                return 'BANK_TRANSFER'
             elif 'ÇEK' in tahsilat_upper or 'CEK' in tahsilat_upper:
                 return 'Çek'
         
@@ -254,7 +254,7 @@ class ReportGenerator:
             'YAPI KREDİ', 'YAPI KREDI', 'YAPIKREDÝ', 'YAPIKREDI', 'YAPI',
             'HAVALE', 'TRANSFER', 'BANKA', 'GARANTI', 'İŞ BANKASI'
         ]):
-            return 'Banka Havalesi'
+            return 'BANK_TRANSFER'
         elif 'KASA' in account_upper and 'NAKİT' not in account_upper:
             return 'Nakit'
         elif any(keyword in account_upper for keyword in [
@@ -262,12 +262,12 @@ class ReportGenerator:
         ]):
             return 'Nakit'
         
-        # Default to Banka Havalesi for TL payments from bank accounts
+        # Default to BANK_TRANSFER for TL payments from bank accounts
         if payment.is_tl_payment and account_upper:
-            return 'Banka Havalesi'
+            return 'BANK_TRANSFER'
         
         # Default fallback
-        return 'Banka Havalesi'
+        return 'BANK_TRANSFER'
     
     def generate_daily_timeline(self, payments: List[PaymentData], 
                               start_date: datetime, end_date: datetime) -> pd.DataFrame:
@@ -699,7 +699,7 @@ class ReportGenerator:
         html = f"""
         <div style="font-family: Arial, sans-serif; padding: 20px;">
             <h1 style="text-align: center; color: #2c3e50; margin-bottom: 15px; font-size: 28px; font-weight: 800;">
-                MODEL KUYUM MERKEZİ – MODEL SANAYİ MERKEZİ TARİHLER TABLOSU
+                PAYMENT REPORTING SYSTEM - DATE RANGES TABLE
             </h1>
             <h2 style="text-align: center; color: #34495e; margin-bottom: 20px; font-size: 20px; font-weight: 600;">
                 {week_range} | Hafta {week_num}
@@ -978,7 +978,7 @@ class ReportGenerator:
             # For weekly sheets, show data for the specific week
             week_key = week_start.strftime('%Y-%m-%d')
             weekly_data = weekly_analysis.get(week_key, {
-                'Banka Havalesi': {'tl_total': 0, 'usd_total': 0},
+                'BANK_TRANSFER': {'tl_total': 0, 'usd_total': 0},
                 'Nakit': {'tl_total': 0, 'usd_total': 0},
                 'Çek': {'tl_total': 0, 'usd_total': 0},
                 'Genel Toplam': {'tl_total': 0, 'usd_total': 0}
@@ -986,14 +986,14 @@ class ReportGenerator:
         else:
             # For summary sheet, sum all weeks
             weekly_data = {
-                'Banka Havalesi': {'tl_total': 0, 'usd_total': 0},
+                'BANK_TRANSFER': {'tl_total': 0, 'usd_total': 0},
                 'Nakit': {'tl_total': 0, 'usd_total': 0},
                 'Çek': {'tl_total': 0, 'usd_total': 0},
                 'Genel Toplam': {'tl_total': 0, 'usd_total': 0}
             }
             
             for week_key, week_data in weekly_analysis.items():
-                for payment_type in ['Banka Havalesi', 'Nakit', 'Çek', 'Genel Toplam']:
+                for payment_type in ['BANK_TRANSFER', 'Nakit', 'Çek', 'Genel Toplam']:
                     if payment_type in week_data:
                         weekly_data[payment_type]['tl_total'] += week_data[payment_type].get('tl_total', 0)
                         weekly_data[payment_type]['usd_total'] += week_data[payment_type].get('usd_total', 0)
@@ -1010,7 +1010,7 @@ class ReportGenerator:
                                                 <tbody>
         """
         
-        payment_types = ['Banka Havalesi', 'Nakit', 'Çek']
+        payment_types = ['BANK_TRANSFER', 'Nakit', 'Çek']
         payment_rows_rendered = 0
         payment_types_present = 0
         for payment_type in payment_types:
@@ -1119,12 +1119,12 @@ class ReportGenerator:
         if is_weekly_sheet and week_start:
             # For weekly sheets, show data for the specific week
             week_key = week_start.strftime('%Y-%m-%d')
-            weekly_project_data = weekly_project_analysis.get(week_key, {'MKM': 0, 'MSM': 0, 'TOPLAM': 0})
+            weekly_project_data = weekly_project_analysis.get(week_key, {'PROJECT_A': 0, 'PROJECT_B': 0, 'TOPLAM': 0})
         else:
             # For summary sheet, sum all weeks
-            weekly_project_data = {'MKM': 0, 'MSM': 0, 'TOPLAM': 0}
+            weekly_project_data = {'PROJECT_A': 0, 'PROJECT_B': 0, 'TOPLAM': 0}
             for week_key, week_data in weekly_project_analysis.items():
-                for project_type in ['MKM', 'MSM', 'TOPLAM']:
+                for project_type in ['PROJECT_A', 'PROJECT_B', 'TOPLAM']:
                     if project_type in week_data:
                         weekly_project_data[project_type] += week_data[project_type]
         
@@ -1139,7 +1139,7 @@ class ReportGenerator:
                 <tbody>
         """
         
-        project_types = ['MKM', 'MSM']
+        project_types = ['PROJECT_A', 'PROJECT_B']
         for project_type in project_types:
             amount = weekly_project_data.get(project_type, 0)
             html += f"""
@@ -1227,28 +1227,28 @@ class ReportGenerator:
             # For weekly sheets, show data for the specific week
             week_key = week_start.strftime('%Y-%m-%d')
             weekly_location_data = weekly_location_analysis.get(week_key, {
-                'ÇARŞI': {'MKM': 0, 'MSM': 0},
-                'KUYUMCUKENT': {'MKM': 0, 'MSM': 0},
-                'OFİS': {'MKM': 0, 'MSM': 0},
-                'BANKA HAVALESİ': {'MKM': 0, 'MSM': 0},
-                'A KASA ÇEK': {'MKM': 0, 'MSM': 0},
-                'B KASA ÇEK': {'MKM': 0, 'MSM': 0}
+                'ÇARŞI': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'LOCATION_B': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'OFİS': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'BANKA HAVALESİ': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'A KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'B KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0}
             })
         else:
             # For summary sheet, sum all weeks
             weekly_location_data = {
-                'ÇARŞI': {'MKM': 0, 'MSM': 0},
-                'KUYUMCUKENT': {'MKM': 0, 'MSM': 0},
-                'OFİS': {'MKM': 0, 'MSM': 0},
-                'BANKA HAVALESİ': {'MKM': 0, 'MSM': 0},
-                'A KASA ÇEK': {'MKM': 0, 'MSM': 0},
-                'B KASA ÇEK': {'MKM': 0, 'MSM': 0}
+                'ÇARŞI': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'LOCATION_B': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'OFİS': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'BANKA HAVALESİ': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'A KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'B KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0}
             }
             
             for week_key, week_data in weekly_location_analysis.items():
                 for location, project_data in week_data.items():
                     if location in weekly_location_data and isinstance(project_data, dict):
-                        for project_type in ['MKM', 'MSM']:
+                        for project_type in ['PROJECT_A', 'PROJECT_B']:
                             if project_type in project_data:
                                 weekly_location_data[location][project_type] += project_data[project_type]
         
@@ -1257,8 +1257,8 @@ class ReportGenerator:
                 <thead>
                     <tr style="background-color: #f4f4f4;">
                         <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">Lokasyon</th>
-                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">MKM</th>
-                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">MSM</th>
+                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">PROJECT_A</th>
+                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">PROJECT_B</th>
                         <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">Toplam</th>
                     </tr>
                 </thead>
@@ -1266,27 +1266,27 @@ class ReportGenerator:
         """
         
         for location, project_data in weekly_location_data.items():
-            mkm_amount = project_data.get('MKM', 0)
-            msm_amount = project_data.get('MSM', 0)
-            total_amount = mkm_amount + msm_amount
+            PROJECT_A_amount = project_data.get('PROJECT_A', 0)
+            PROJECT_B_amount = project_data.get('PROJECT_B', 0)
+            total_amount = PROJECT_A_amount + PROJECT_B_amount
             html += f"""
                     <tr style="background-color: white;">
                         <td style="border: 1px solid #bdc3c7; padding: 8px;">{location}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${mkm_amount:,.2f}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${msm_amount:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_A_amount:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_B_amount:,.2f}</td>
                         <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${total_amount:,.2f}</td>
                     </tr>
             """
         
         # Calculate weekly totals
-        mkm_total = sum(data.get('MKM', 0) for data in weekly_location_data.values() if isinstance(data, dict))
-        msm_total = sum(data.get('MSM', 0) for data in weekly_location_data.values() if isinstance(data, dict))
-        general_total = mkm_total + msm_total
+        PROJECT_A_total = sum(data.get('PROJECT_A', 0) for data in weekly_location_data.values() if isinstance(data, dict))
+        PROJECT_B_total = sum(data.get('PROJECT_B', 0) for data in weekly_location_data.values() if isinstance(data, dict))
+        general_total = PROJECT_A_total + PROJECT_B_total
         html += f"""
                     <tr style="background-color: #e74c3c; color: white; font-weight: bold;">
                         <td style="border: 1px solid #bdc3c7; padding: 8px;">TOPLAM</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${mkm_total:,.2f}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${msm_total:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_A_total:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_B_total:,.2f}</td>
                         <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${general_total:,.2f}</td>
                     </tr>
         """
@@ -1307,8 +1307,8 @@ class ReportGenerator:
                 <thead>
                     <tr style="background-color: #f4f4f4;">
                         <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">Lokasyon</th>
-                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">MKM</th>
-                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">MSM</th>
+                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">PROJECT_A</th>
+                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">PROJECT_B</th>
                         <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">Toplam</th>
                     </tr>
                 </thead>
@@ -1317,27 +1317,27 @@ class ReportGenerator:
         
         for location, project_data in monthly_location_data.items():
             if isinstance(project_data, dict):
-                mkm_amount = project_data.get('MKM', 0)
-                msm_amount = project_data.get('MSM', 0)
-                total_amount = mkm_amount + msm_amount
+                PROJECT_A_amount = project_data.get('PROJECT_A', 0)
+                PROJECT_B_amount = project_data.get('PROJECT_B', 0)
+                total_amount = PROJECT_A_amount + PROJECT_B_amount
                 html += f"""
                     <tr style="background-color: white;">
                         <td style="border: 1px solid #bdc3c7; padding: 8px;">{location}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${mkm_amount:,.2f}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${msm_amount:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_A_amount:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_B_amount:,.2f}</td>
                         <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${total_amount:,.2f}</td>
                     </tr>
             """
         
         # Calculate monthly totals
-        mkm_total = sum(data.get('MKM', 0) for data in monthly_location_data.values() if isinstance(data, dict))
-        msm_total = sum(data.get('MSM', 0) for data in monthly_location_data.values() if isinstance(data, dict))
-        general_total = mkm_total + msm_total
+        PROJECT_A_total = sum(data.get('PROJECT_A', 0) for data in monthly_location_data.values() if isinstance(data, dict))
+        PROJECT_B_total = sum(data.get('PROJECT_B', 0) for data in monthly_location_data.values() if isinstance(data, dict))
+        general_total = PROJECT_A_total + PROJECT_B_total
         html += f"""
                     <tr style="background-color: #e74c3c; color: white; font-weight: bold;">
                         <td style="border: 1px solid #bdc3c7; padding: 8px;">TOPLAM</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${mkm_total:,.2f}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${msm_total:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_A_total:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_B_total:,.2f}</td>
                         <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${general_total:,.2f}</td>
                     </tr>
         """
@@ -1383,7 +1383,7 @@ class ReportGenerator:
         # Weekly payment type analysis - sum all weeks in the analysis
         weekly_analysis = payment_type_analysis.get('weekly', {})
         weekly_data = {
-            'Banka Havalesi': {'tl_total': 0, 'usd_total': 0},
+            'BANK_TRANSFER': {'tl_total': 0, 'usd_total': 0},
             'Nakit': {'tl_total': 0, 'usd_total': 0},
             'Çek': {'tl_total': 0, 'usd_total': 0},
             'Genel Toplam': {'tl_total': 0, 'usd_total': 0}
@@ -1391,7 +1391,7 @@ class ReportGenerator:
         
         # Sum all weeks
         for week_key, week_data in weekly_analysis.items():
-            for payment_type in ['Banka Havalesi', 'Nakit', 'Çek', 'Genel Toplam']:
+            for payment_type in ['BANK_TRANSFER', 'Nakit', 'Çek', 'Genel Toplam']:
                 if payment_type in week_data:
                     weekly_data[payment_type]['tl_total'] += week_data[payment_type].get('tl_total', 0)
                     weekly_data[payment_type]['usd_total'] += week_data[payment_type].get('usd_total', 0)
@@ -1408,7 +1408,7 @@ class ReportGenerator:
                                                 <tbody>
         """
         
-        payment_types = ['Banka Havalesi', 'Nakit', 'Çek']
+        payment_types = ['BANK_TRANSFER', 'Nakit', 'Çek']
         for payment_type in payment_types:
             data = weekly_data.get(payment_type, {'tl_total': 0, 'usd_total': 0})
             html += f"""
@@ -1493,11 +1493,11 @@ class ReportGenerator:
         
         # Weekly project totals - sum all weeks in the analysis
         weekly_project_analysis = project_totals_analysis.get('weekly', {})
-        weekly_project_data = {'MKM': 0, 'MSM': 0, 'TOPLAM': 0}
+        weekly_project_data = {'PROJECT_A': 0, 'PROJECT_B': 0, 'TOPLAM': 0}
         
         # Sum all weeks
         for week_key, week_data in weekly_project_analysis.items():
-            for project_type in ['MKM', 'MSM', 'TOPLAM']:
+            for project_type in ['PROJECT_A', 'PROJECT_B', 'TOPLAM']:
                 if project_type in week_data:
                     weekly_project_data[project_type] += week_data[project_type]
         
@@ -1512,7 +1512,7 @@ class ReportGenerator:
                 <tbody>
         """
         
-        projects = ['MKM', 'MSM']
+        projects = ['PROJECT_A', 'PROJECT_B']
         for project in projects:
             amount = weekly_project_data.get(project, 0)
             html += f"""
@@ -1594,13 +1594,13 @@ class ReportGenerator:
         # Weekly location analysis - sum all weeks in the analysis
         weekly_location_analysis = location_analysis.get('weekly', {})
         weekly_location_data = {
-            'ÇARŞI': {'MKM': 0, 'MSM': 0},
-            'KUYUMCUKENT': {'MKM': 0, 'MSM': 0},
-            'OFİS': {'MKM': 0, 'MSM': 0},
-            'BANKA HAVALESİ': {'MKM': 0, 'MSM': 0},
-            'A KASA ÇEK': {'MKM': 0, 'MSM': 0},
-            'B KASA ÇEK': {'MKM': 0, 'MSM': 0},
-            'TOPLAM': {'MKM': 0, 'MSM': 0}
+            'ÇARŞI': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'LOCATION_B': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'OFİS': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'BANKA HAVALESİ': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'A KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'B KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'TOPLAM': {'PROJECT_A': 0, 'PROJECT_B': 0}
         }
         
         # Sum all weeks
@@ -1608,46 +1608,46 @@ class ReportGenerator:
             for location in weekly_location_data.keys():
                 if location in week_data:
                     if isinstance(week_data[location], dict):
-                        weekly_location_data[location]['MKM'] += week_data[location].get('MKM', 0)
-                        weekly_location_data[location]['MSM'] += week_data[location].get('MSM', 0)
+                        weekly_location_data[location]['PROJECT_A'] += week_data[location].get('PROJECT_A', 0)
+                        weekly_location_data[location]['PROJECT_B'] += week_data[location].get('PROJECT_B', 0)
         
         html += """
             <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
                 <thead>
                     <tr style="background-color: #f4f4f4;">
                         <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">Lokasyon</th>
-                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">MKM USD</th>
-                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">MSM USD</th>
+                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">PROJECT_A USD</th>
+                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">PROJECT_B USD</th>
                         <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">Toplam USD</th>
                     </tr>
                 </thead>
                 <tbody>
         """
         
-        locations = ['ÇARŞI', 'KUYUMCUKENT', 'OFİS', 'BANKA HAVALESİ', 'A KASA ÇEK', 'B KASA ÇEK']
+        locations = ['ÇARŞI', 'LOCATION_B', 'OFİS', 'BANKA HAVALESİ', 'A KASA ÇEK', 'B KASA ÇEK']
         for location in locations:
-            location_data = weekly_location_data.get(location, {'MKM': 0, 'MSM': 0})
-            mkm_amount = location_data.get('MKM', 0) if isinstance(location_data, dict) else 0
-            msm_amount = location_data.get('MSM', 0) if isinstance(location_data, dict) else 0
-            total_amount = mkm_amount + msm_amount
+            location_data = weekly_location_data.get(location, {'PROJECT_A': 0, 'PROJECT_B': 0})
+            PROJECT_A_amount = location_data.get('PROJECT_A', 0) if isinstance(location_data, dict) else 0
+            PROJECT_B_amount = location_data.get('PROJECT_B', 0) if isinstance(location_data, dict) else 0
+            total_amount = PROJECT_A_amount + PROJECT_B_amount
             html += f"""
                     <tr style="background-color: white;">
                         <td style="border: 1px solid #bdc3c7; padding: 8px;">{location}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${mkm_amount:,.2f}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${msm_amount:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_A_amount:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_B_amount:,.2f}</td>
                         <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${total_amount:,.2f}</td>
                     </tr>
             """
         
         # Calculate weekly totals
-        mkm_total = sum(data.get('MKM', 0) for data in weekly_location_data.values() if isinstance(data, dict))
-        msm_total = sum(data.get('MSM', 0) for data in weekly_location_data.values() if isinstance(data, dict))
-        general_total = mkm_total + msm_total
+        PROJECT_A_total = sum(data.get('PROJECT_A', 0) for data in weekly_location_data.values() if isinstance(data, dict))
+        PROJECT_B_total = sum(data.get('PROJECT_B', 0) for data in weekly_location_data.values() if isinstance(data, dict))
+        general_total = PROJECT_A_total + PROJECT_B_total
         html += f"""
                     <tr style="background-color: #e74c3c; color: white; font-weight: bold;">
                         <td style="border: 1px solid #bdc3c7; padding: 8px;">TOPLAM</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${mkm_total:,.2f}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${msm_total:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_A_total:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_B_total:,.2f}</td>
                         <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${general_total:,.2f}</td>
                     </tr>
         """
@@ -1669,8 +1669,8 @@ class ReportGenerator:
                 <thead>
                     <tr style="background-color: #f4f4f4;">
                         <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">Lokasyon</th>
-                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">MKM USD</th>
-                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">MSM USD</th>
+                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">PROJECT_A USD</th>
+                        <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">PROJECT_B USD</th>
                         <th style="border: 1px solid #bdc3c7; padding: 8px; text-align: center;">Toplam USD</th>
                     </tr>
                 </thead>
@@ -1678,28 +1678,28 @@ class ReportGenerator:
         """
         
         for location in locations:
-            location_data = monthly_location_data.get(location, {'MKM': 0, 'MSM': 0})
-            mkm_amount = location_data.get('MKM', 0) if isinstance(location_data, dict) else 0
-            msm_amount = location_data.get('MSM', 0) if isinstance(location_data, dict) else 0
-            total_amount = mkm_amount + msm_amount
+            location_data = monthly_location_data.get(location, {'PROJECT_A': 0, 'PROJECT_B': 0})
+            PROJECT_A_amount = location_data.get('PROJECT_A', 0) if isinstance(location_data, dict) else 0
+            PROJECT_B_amount = location_data.get('PROJECT_B', 0) if isinstance(location_data, dict) else 0
+            total_amount = PROJECT_A_amount + PROJECT_B_amount
             html += f"""
                     <tr style="background-color: white;">
                         <td style="border: 1px solid #bdc3c7; padding: 8px;">{location}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${mkm_amount:,.2f}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${msm_amount:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_A_amount:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_B_amount:,.2f}</td>
                         <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${total_amount:,.2f}</td>
                     </tr>
             """
         
         # Calculate monthly totals
-        mkm_total = sum(data.get('MKM', 0) for data in monthly_location_data.values() if isinstance(data, dict))
-        msm_total = sum(data.get('MSM', 0) for data in monthly_location_data.values() if isinstance(data, dict))
-        general_total = mkm_total + msm_total
+        PROJECT_A_total = sum(data.get('PROJECT_A', 0) for data in monthly_location_data.values() if isinstance(data, dict))
+        PROJECT_B_total = sum(data.get('PROJECT_B', 0) for data in monthly_location_data.values() if isinstance(data, dict))
+        general_total = PROJECT_A_total + PROJECT_B_total
         html += f"""
                     <tr style="background-color: #e74c3c; color: white; font-weight: bold;">
                         <td style="border: 1px solid #bdc3c7; padding: 8px;">TOPLAM</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${mkm_total:,.2f}</td>
-                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${msm_total:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_A_total:,.2f}</td>
+                        <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${PROJECT_B_total:,.2f}</td>
                         <td style="border: 1px solid #bdc3c7; padding: 8px; text-align: right;">${general_total:,.2f}</td>
                     </tr>
         """
@@ -1839,7 +1839,7 @@ class ReportGenerator:
                         
                         # Write subtitle
                         date_range_str = f"{start_date.strftime('%d.%m.%Y')} - {end_date.strftime('%d.%m.%Y')}"
-                        subtitle_text = f"{date_range_str} | Banka Havalesi - Nakit"
+                        subtitle_text = f"{date_range_str} | BANK_TRANSFER - Nakit"
                         main_worksheet.merge_range(f'A2:{last_col_letter}2', subtitle_text, subtitle_format)
                         
                         # Write headers
@@ -1947,7 +1947,7 @@ class ReportGenerator:
                         
                         # Write subtitle with date range and payment type
                         date_range_str = f"{start_date.strftime('%d.%m.%Y')} - {end_date.strftime('%d.%m.%Y')}"
-                        subtitle_text = f"{date_range_str} | Banka Havalesi - Nakit"
+                        subtitle_text = f"{date_range_str} | BANK_TRANSFER - Nakit"
                         worksheet.merge_range(f'A2:{last_col_letter}2', subtitle_text, subtitle_format)
                         
                         # Write week header
@@ -2260,7 +2260,7 @@ class ReportGenerator:
                         current_row += 1
                         
                         # Weekly data
-                        payment_types = ['Banka Havalesi', 'Nakit', 'Çek']
+                        payment_types = ['BANK_TRANSFER', 'Nakit', 'Çek']
                         for i, payment_type in enumerate(payment_types):
                             data = weekly_data.get(payment_type, {'tl_total': 0, 'usd_total': 0})
                             worksheet.write(current_row, 0, payment_type)
@@ -2300,14 +2300,14 @@ class ReportGenerator:
                         
                         # Weekly project data - sum all weeks
                         weekly_project_analysis = project_totals_analysis.get('weekly', {})
-                        weekly_project_data = {'MKM': 0, 'MSM': 0, 'TOPLAM': 0}
+                        weekly_project_data = {'PROJECT_A': 0, 'PROJECT_B': 0, 'TOPLAM': 0}
                         for wk_key, wk_data in weekly_project_analysis.items():
-                            for project_type in ['MKM', 'MSM', 'TOPLAM']:
+                            for project_type in ['PROJECT_A', 'PROJECT_B', 'TOPLAM']:
                                 if project_type in wk_data:
                                     weekly_project_data[project_type] += wk_data[project_type]
                         monthly_project_data = project_totals_analysis.get('monthly', {})
                         
-                        projects = ['MKM', 'MSM']
+                        projects = ['PROJECT_A', 'PROJECT_B']
                         for i, project in enumerate(projects):
                             weekly_amount = weekly_project_data.get(project, 0)
                             monthly_amount = monthly_project_data.get(project, 0)
@@ -2341,33 +2341,33 @@ class ReportGenerator:
                         # Weekly location data - sum all weeks
                         weekly_location_analysis = location_analysis.get('weekly', {})
                         weekly_location_data = {
-                            'ÇARŞI': {'MKM': 0, 'MSM': 0},
-                            'KUYUMCUKENT': {'MKM': 0, 'MSM': 0},
-                            'OFİS': {'MKM': 0, 'MSM': 0},
-                            'BANKA HAVALESİ': {'MKM': 0, 'MSM': 0},
-                            'A KASA ÇEK': {'MKM': 0, 'MSM': 0},
-                            'B KASA ÇEK': {'MKM': 0, 'MSM': 0}
+                            'ÇARŞI': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                            'LOCATION_B': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                            'OFİS': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                            'BANKA HAVALESİ': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                            'A KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                            'B KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0}
                         }
                         for wk_key, wk_data in weekly_location_analysis.items():
                             for location in weekly_location_data.keys():
                                 if location in wk_data and isinstance(wk_data[location], dict):
-                                    weekly_location_data[location]['MKM'] += wk_data[location].get('MKM', 0)
-                                    weekly_location_data[location]['MSM'] += wk_data[location].get('MSM', 0)
+                                    weekly_location_data[location]['PROJECT_A'] += wk_data[location].get('PROJECT_A', 0)
+                                    weekly_location_data[location]['PROJECT_B'] += wk_data[location].get('PROJECT_B', 0)
                         monthly_location_data = location_analysis.get('monthly', {})
                         
-                        locations = ['ÇARŞI', 'KUYUMCUKENT', 'OFİS', 'BANKA HAVALESİ', 'A KASA ÇEK', 'B KASA ÇEK']
+                        locations = ['ÇARŞI', 'LOCATION_B', 'OFİS', 'BANKA HAVALESİ', 'A KASA ÇEK', 'B KASA ÇEK']
                         for i, location in enumerate(locations):
                             # Handle dictionary structure from location analysis
                             weekly_data = weekly_location_data.get(location, {})
                             monthly_data = monthly_location_data.get(location, {})
                             
                             if isinstance(weekly_data, dict):
-                                weekly_amount = weekly_data.get('MKM', 0) + weekly_data.get('MSM', 0)
+                                weekly_amount = weekly_data.get('PROJECT_A', 0) + weekly_data.get('PROJECT_B', 0)
                             else:
                                 weekly_amount = weekly_data
                                 
                             if isinstance(monthly_data, dict):
-                                monthly_amount = monthly_data.get('MKM', 0) + monthly_data.get('MSM', 0)
+                                monthly_amount = monthly_data.get('PROJECT_A', 0) + monthly_data.get('PROJECT_B', 0)
                             else:
                                 monthly_amount = monthly_data
                             
@@ -2709,7 +2709,7 @@ class ReportGenerator:
             current_row += 1
             
             # Add payment type data
-            for payment_type in ['Nakit', 'Banka Havalesi', 'Çek']:
+            for payment_type in ['Nakit', 'BANK_TRANSFER', 'Çek']:
                 weekly_data = payment_type_analysis.get('weekly', {})
                 tl_amount = sum(week_data.get(payment_type, {}).get('total_tl', 0) for week_data in weekly_data.values())
                 usd_amount = sum(week_data.get(payment_type, {}).get('total_usd', 0) for week_data in weekly_data.values())
@@ -2732,33 +2732,33 @@ class ReportGenerator:
             
             # Add project data
             weekly_projects = project_totals_analysis.get('weekly', {})
-            total_mkm = sum(week_data.get('MKM', 0) for week_data in weekly_projects.values() if isinstance(week_data.get('MKM'), (int, float)))
-            total_msm = sum(week_data.get('MSM', 0) for week_data in weekly_projects.values() if isinstance(week_data.get('MSM'), (int, float)))
+            total_PROJECT_A = sum(week_data.get('PROJECT_A', 0) for week_data in weekly_projects.values() if isinstance(week_data.get('PROJECT_A'), (int, float)))
+            total_PROJECT_B = sum(week_data.get('PROJECT_B', 0) for week_data in weekly_projects.values() if isinstance(week_data.get('PROJECT_B'), (int, float)))
             
-            worksheet.write(current_row, 0, 'MKM', cell_format)
-            worksheet.write(current_row, 1, total_mkm, currency_format)
+            worksheet.write(current_row, 0, 'PROJECT_A', cell_format)
+            worksheet.write(current_row, 1, total_PROJECT_A, currency_format)
             current_row += 1
             
-            worksheet.write(current_row, 0, 'MSM', cell_format)
-            worksheet.write(current_row, 1, total_msm, currency_format)
+            worksheet.write(current_row, 0, 'PROJECT_B', cell_format)
+            worksheet.write(current_row, 1, total_PROJECT_B, currency_format)
             current_row += 1
             
             worksheet.write(current_row, 0, 'TOPLAM', header_format)
-            worksheet.write(current_row, 1, total_mkm + total_msm, currency_format)
+            worksheet.write(current_row, 1, total_PROJECT_A + total_PROJECT_B, currency_format)
             current_row += 2
             
             # Location Analysis
             worksheet.merge_range(current_row, 0, current_row, 4, "LOKASYON ANALİZİ", header_format)
             current_row += 1
             
-            headers = ['Lokasyon', 'MKM USD', 'MSM USD', 'Toplam USD']
+            headers = ['Lokasyon', 'PROJECT_A USD', 'PROJECT_B USD', 'Toplam USD']
             for col, header in enumerate(headers):
                 worksheet.write(current_row, col, header, header_format)
             current_row += 1
             
             # Add location data
             weekly_locations = location_analysis.get('weekly', {})
-            locations = ['ÇARŞI', 'KUYUMCUKENT', 'OFİS', 'BANKA HAVALESİ', 'A KASA ÇEK', 'B KASA ÇEK']
+            locations = ['ÇARŞI', 'LOCATION_B', 'OFİS', 'BANKA HAVALESİ', 'A KASA ÇEK', 'B KASA ÇEK']
             
             for location in locations:
                 location_data = {}
@@ -2766,16 +2766,16 @@ class ReportGenerator:
                     if location in week_data:
                         loc_data = week_data[location]
                         if isinstance(loc_data, dict):
-                            location_data['MKM'] = location_data.get('MKM', 0) + loc_data.get('MKM', 0)
-                            location_data['MSM'] = location_data.get('MSM', 0) + loc_data.get('MSM', 0)
+                            location_data['PROJECT_A'] = location_data.get('PROJECT_A', 0) + loc_data.get('PROJECT_A', 0)
+                            location_data['PROJECT_B'] = location_data.get('PROJECT_B', 0) + loc_data.get('PROJECT_B', 0)
                 
-                mkm_amount = location_data.get('MKM', 0)
-                msm_amount = location_data.get('MSM', 0)
-                total_amount = mkm_amount + msm_amount
+                PROJECT_A_amount = location_data.get('PROJECT_A', 0)
+                PROJECT_B_amount = location_data.get('PROJECT_B', 0)
+                total_amount = PROJECT_A_amount + PROJECT_B_amount
                 
                 worksheet.write(current_row, 0, location, cell_format)
-                worksheet.write(current_row, 1, mkm_amount, currency_format)
-                worksheet.write(current_row, 2, msm_amount, currency_format)
+                worksheet.write(current_row, 1, PROJECT_A_amount, currency_format)
+                worksheet.write(current_row, 2, PROJECT_B_amount, currency_format)
                 worksheet.write(current_row, 3, total_amount, currency_format)
                 current_row += 1
                 
@@ -2804,7 +2804,7 @@ class ReportGenerator:
             
             # Date range and payment type subtitle
             date_range_str = f"{start_date.strftime('%d.%m.%Y')} - {end_date.strftime('%d.%m.%Y')}"
-            subtitle_text = f"{date_range_str} | Banka Havalesi - Nakit"
+            subtitle_text = f"{date_range_str} | BANK_TRANSFER - Nakit"
             subtitle = Paragraph(subtitle_text, self.subtitle_style)
             story.append(subtitle)
             story.append(Spacer(1, 20))
@@ -3014,7 +3014,7 @@ class ReportGenerator:
             
             # Date range and payment type subtitle
             date_range_str = f"{start_date.strftime('%d.%m.%Y')} - {end_date.strftime('%d.%m.%Y')}"
-            subtitle_text = f"{date_range_str} | Banka Havalesi - Nakit"
+            subtitle_text = f"{date_range_str} | BANK_TRANSFER - Nakit"
             subtitle = doc.add_heading(subtitle_text, level=1)
             subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
             
@@ -3198,7 +3198,7 @@ class ReportGenerator:
     
     def generate_payment_type_analysis(self, payments: List[PaymentData], 
                                      start_date: datetime, end_date: datetime) -> Dict[str, Any]:
-        """Generate payment type analysis (Banka Havalesi, Nakit, Çek) with TL/USD totals"""
+        """Generate payment type analysis (BANK_TRANSFER, Nakit, Çek) with TL/USD totals"""
         # Filter payments by date range using payment date consistently for all payment types
         filtered_payments = []
         for p in payments:
@@ -3217,7 +3217,7 @@ class ReportGenerator:
         
         # Process payments by type
         payment_types = {
-            'Banka Havalesi': [],
+            'BANK_TRANSFER': [],
             'Nakit': [],
             'Çek': []
         }
@@ -3227,7 +3227,7 @@ class ReportGenerator:
             payment_type = getattr(payment, 'payment_type', 'Diğer')
             
             # Ensure we have the correct categories
-            if payment_type not in ['Nakit', 'Banka Havalesi', 'Çek']:
+            if payment_type not in ['Nakit', 'BANK_TRANSFER', 'Çek']:
                 # Fallback logic if payment_type is not set correctly
                 tahsilat_sekli = payment.tahsilat_sekli.upper() if payment.tahsilat_sekli else ''
                 account_name = payment.account_name.upper() if payment.account_name else ''
@@ -3235,11 +3235,11 @@ class ReportGenerator:
                 if payment.is_check_payment or 'ÇEK' in tahsilat_sekli:
                     payment_type = 'Çek'
                 elif 'YAPI KREDİ' in account_name or 'HAVALE' in tahsilat_sekli:
-                    payment_type = 'Banka Havalesi'
+                    payment_type = 'BANK_TRANSFER'
                 elif 'KASA' in account_name or 'NAKİT' in tahsilat_sekli:
                     payment_type = 'Nakit'
                 else:
-                    payment_type = 'Banka Havalesi'  # Default
+                    payment_type = 'BANK_TRANSFER'  # Default
             
             # Use the already converted USD amount from PaymentData
             usd_amount = payment.usd_amount if payment.usd_amount > 0 else payment.amount
@@ -3260,7 +3260,7 @@ class ReportGenerator:
                 week_end = end_date
             
             week_data = {
-                'Banka Havalesi': {'tl_total': 0, 'usd_total': 0},
+                'BANK_TRANSFER': {'tl_total': 0, 'usd_total': 0},
                 'Nakit': {'tl_total': 0, 'usd_total': 0},
                 'Çek': {'tl_total': 0, 'usd_total': 0}
             }
@@ -3282,7 +3282,7 @@ class ReportGenerator:
         
         # Generate monthly analysis
         monthly_analysis = {
-            'Banka Havalesi': {'tl_total': 0, 'usd_total': 0},
+            'BANK_TRANSFER': {'tl_total': 0, 'usd_total': 0},
             'Nakit': {'tl_total': 0, 'usd_total': 0},
             'Çek': {'tl_total': 0, 'usd_total': 0}
         }
@@ -3304,7 +3304,7 @@ class ReportGenerator:
     
     def generate_project_totals_analysis(self, payments: List[PaymentData], 
                                        start_date: datetime, end_date: datetime) -> Dict[str, Any]:
-        """Generate MKM/MSM project totals analysis for weekly and monthly USD payments"""
+        """Generate PROJECT_A/PROJECT_B project totals analysis for weekly and monthly USD payments"""
         # Filter payments by date range (more flexible date comparison)
         filtered_payments = []
         for p in payments:
@@ -3322,25 +3322,25 @@ class ReportGenerator:
         
         # Process payments by project
         project_payments = {
-            'MKM': [],
-            'MSM': []
+            'PROJECT_A': [],
+            'PROJECT_B': []
         }
         
         for payment in filtered_payments:
             project_name = payment.project_name.upper() if payment.project_name else ''
             
             # Determine project type based on actual project names
-            if 'MKM' in project_name:
-                project_type = 'MKM'
-            elif 'MSM' in project_name:
-                project_type = 'MSM'
+            if 'PROJECT_A' in project_name:
+                project_type = 'PROJECT_A'
+            elif 'PROJECT_B' in project_name:
+                project_type = 'PROJECT_B'
             elif 'KUYUM' in project_name or 'KIYIM' in project_name:
-                project_type = 'MKM'  # Model Kuyum Merkezi
+                project_type = 'PROJECT_A'  # COMPANY_A
             elif 'SANAYİ' in project_name or 'SANAYI' in project_name:
-                project_type = 'MSM'  # Model Sanayi Merkezi
+                project_type = 'PROJECT_B'  # COMPANY_B
             else:
                 # Default classification
-                project_type = 'MKM'  # Default to MKM
+                project_type = 'PROJECT_A'  # Default to PROJECT_A
             
             # Use the already converted USD amount from PaymentData
             usd_amount = payment.usd_amount if payment.usd_amount > 0 else payment.amount
@@ -3360,8 +3360,8 @@ class ReportGenerator:
                 week_end = end_date
             
             week_data = {
-                'MKM': 0,
-                'MSM': 0
+                'PROJECT_A': 0,
+                'PROJECT_B': 0
             }
             
             for project_type, project_payment_list in project_payments.items():
@@ -3369,22 +3369,22 @@ class ReportGenerator:
                     if week_start <= payment['date'] <= week_end:
                         week_data[project_type] += payment['amount_usd']
             
-            week_data['TOPLAM'] = week_data['MKM'] + week_data['MSM']
+            week_data['TOPLAM'] = week_data['PROJECT_A'] + week_data['PROJECT_B']
             
             week_key = week_start.strftime('%Y-%m-%d')
             weekly_analysis[week_key] = week_data
         
         # Generate monthly analysis
         monthly_analysis = {
-            'MKM': 0,
-            'MSM': 0
+            'PROJECT_A': 0,
+            'PROJECT_B': 0
         }
         
         for project_type, project_payment_list in project_payments.items():
             for payment in project_payment_list:
                 monthly_analysis[project_type] += payment['amount_usd']
         
-        monthly_analysis['TOPLAM'] = monthly_analysis['MKM'] + monthly_analysis['MSM']
+        monthly_analysis['TOPLAM'] = monthly_analysis['PROJECT_A'] + monthly_analysis['PROJECT_B']
         
         return {
             'weekly': weekly_analysis,
@@ -3393,7 +3393,7 @@ class ReportGenerator:
     
     def generate_location_analysis(self, payments: List[PaymentData], 
                                  start_date: datetime, end_date: datetime) -> Dict[str, Any]:
-        """Generate location-based payment analysis (Çarşı, Kuyumcukent, Ofis, Banka Havalesi, A Kasa Çek, B Kasa Çek)"""
+        """Generate location-based payment analysis (Çarşı, LOCATION_B, LOCATION_C, BANK_TRANSFER, A Kasa Çek, B Kasa Çek)"""
         # Filter payments by date range (more flexible date comparison)
         filtered_payments = []
         for p in payments:
@@ -3411,12 +3411,12 @@ class ReportGenerator:
         
         # Process payments by location and check type
         location_payments = {
-            'ÇARŞI': {'MKM': [], 'MSM': []},
-            'KUYUMCUKENT': {'MKM': [], 'MSM': []},
-            'OFİS': {'MKM': [], 'MSM': []},
-            'BANKA HAVALESİ': {'MKM': [], 'MSM': []},
-            'A KASA ÇEK': {'MKM': [], 'MSM': []},
-            'B KASA ÇEK': {'MKM': [], 'MSM': []}
+            'ÇARŞI': {'PROJECT_A': [], 'PROJECT_B': []},
+            'LOCATION_B': {'PROJECT_A': [], 'PROJECT_B': []},
+            'OFİS': {'PROJECT_A': [], 'PROJECT_B': []},
+            'BANKA HAVALESİ': {'PROJECT_A': [], 'PROJECT_B': []},
+            'A KASA ÇEK': {'PROJECT_A': [], 'PROJECT_B': []},
+            'B KASA ÇEK': {'PROJECT_A': [], 'PROJECT_B': []}
         }
         
         for payment in filtered_payments:
@@ -3424,11 +3424,11 @@ class ReportGenerator:
             account_name = payment.account_name.upper() if payment.account_name else ''
             
             # Check for location keywords (handle encoding issues)
-            if 'KUYUMCUKENT' in account_name or 'KUYUMCU' in account_name:
-                location = 'KUYUMCUKENT'
+            if 'LOCATION_B' in account_name or 'KUYUMCU' in account_name:
+                location = 'LOCATION_B'
             elif 'ÇARŞI' in account_name or 'CARSI' in account_name or 'ÇARÞI' in account_name or 'CARÞI' in account_name:
                 location = 'ÇARŞI'
-            elif ('OFİS' in account_name or 'OFIS' in account_name or 'MERKEZ' in account_name or 
+            elif ('OFİS' in account_name or 'LOCATION_C' in account_name or 'MERKEZ' in account_name or 
                   'OFÝS' in account_name or 'OFİS' in account_name):
                 location = 'OFİS'
             elif ('HAVALE' in account_name or 'TRANSFER' in account_name or 'BANKA' in account_name or 
@@ -3452,16 +3452,16 @@ class ReportGenerator:
             
             # Determine project type
             project_name = payment.project_name.upper() if payment.project_name else ''
-            if 'MKM' in project_name:
-                project_type = 'MKM'
-            elif 'MSM' in project_name:
-                project_type = 'MSM'
+            if 'PROJECT_A' in project_name:
+                project_type = 'PROJECT_A'
+            elif 'PROJECT_B' in project_name:
+                project_type = 'PROJECT_B'
             elif 'KUYUM' in project_name or 'KIYIM' in project_name:
-                project_type = 'MKM'  # Model Kuyum Merkezi
+                project_type = 'PROJECT_A'  # COMPANY_A
             elif 'SANAYİ' in project_name or 'SANAYI' in project_name:
-                project_type = 'MSM'  # Model Sanayi Merkezi
+                project_type = 'PROJECT_B'  # COMPANY_B
             else:
-                project_type = 'MKM'  # Default to MKM
+                project_type = 'PROJECT_A'  # Default to PROJECT_A
             
             # Use the already converted USD amount from PaymentData
             usd_amount = payment.usd_amount if payment.usd_amount > 0 else payment.amount
@@ -3481,12 +3481,12 @@ class ReportGenerator:
                 week_end = end_date
             
             week_data = {
-                'ÇARŞI': {'MKM': 0, 'MSM': 0},
-                'KUYUMCUKENT': {'MKM': 0, 'MSM': 0},
-                'OFİS': {'MKM': 0, 'MSM': 0},
-                'BANKA HAVALESİ': {'MKM': 0, 'MSM': 0},
-                'A KASA ÇEK': {'MKM': 0, 'MSM': 0},
-                'B KASA ÇEK': {'MKM': 0, 'MSM': 0}
+                'ÇARŞI': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'LOCATION_B': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'OFİS': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'BANKA HAVALESİ': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'A KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0},
+                'B KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0}
             }
             
             for location, project_data in location_payments.items():
@@ -3497,22 +3497,22 @@ class ReportGenerator:
             
             # Calculate totals
             week_data['TOPLAM'] = {
-                'MKM': sum(data['MKM'] for data in week_data.values() if isinstance(data, dict)),
-                'MSM': sum(data['MSM'] for data in week_data.values() if isinstance(data, dict))
+                'PROJECT_A': sum(data['PROJECT_A'] for data in week_data.values() if isinstance(data, dict)),
+                'PROJECT_B': sum(data['PROJECT_B'] for data in week_data.values() if isinstance(data, dict))
             }
-            week_data['TOPLAM']['GENEL'] = week_data['TOPLAM']['MKM'] + week_data['TOPLAM']['MSM']
+            week_data['TOPLAM']['GENEL'] = week_data['TOPLAM']['PROJECT_A'] + week_data['TOPLAM']['PROJECT_B']
             
             week_key = week_start.strftime('%Y-%m-%d')
             weekly_analysis[week_key] = week_data
         
         # Generate monthly analysis
         monthly_analysis = {
-            'ÇARŞI': {'MKM': 0, 'MSM': 0},
-            'KUYUMCUKENT': {'MKM': 0, 'MSM': 0},
-            'OFİS': {'MKM': 0, 'MSM': 0},
-            'BANKA HAVALESİ': {'MKM': 0, 'MSM': 0},
-            'A KASA ÇEK': {'MKM': 0, 'MSM': 0},
-            'B KASA ÇEK': {'MKM': 0, 'MSM': 0}
+            'ÇARŞI': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'LOCATION_B': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'OFİS': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'BANKA HAVALESİ': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'A KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0},
+            'B KASA ÇEK': {'PROJECT_A': 0, 'PROJECT_B': 0}
         }
         
         for location, project_data in location_payments.items():
@@ -3522,10 +3522,10 @@ class ReportGenerator:
         
         # Calculate monthly totals
         monthly_analysis['TOPLAM'] = {
-            'MKM': sum(data['MKM'] for data in monthly_analysis.values() if isinstance(data, dict)),
-            'MSM': sum(data['MSM'] for data in monthly_analysis.values() if isinstance(data, dict))
+            'PROJECT_A': sum(data['PROJECT_A'] for data in monthly_analysis.values() if isinstance(data, dict)),
+            'PROJECT_B': sum(data['PROJECT_B'] for data in monthly_analysis.values() if isinstance(data, dict))
         }
-        monthly_analysis['TOPLAM']['GENEL'] = monthly_analysis['TOPLAM']['MKM'] + monthly_analysis['TOPLAM']['MSM']
+        monthly_analysis['TOPLAM']['GENEL'] = monthly_analysis['TOPLAM']['PROJECT_A'] + monthly_analysis['TOPLAM']['PROJECT_B']
         
         return {
             'weekly': weekly_analysis,

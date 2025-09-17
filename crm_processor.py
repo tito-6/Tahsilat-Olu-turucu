@@ -54,7 +54,7 @@ class CRMProcessor:
                     'Proje', 'Project', 'PROJECT', 'proje',
                     'Proje Adı', 'Project Name', 'Proje Kodu',
                     'Project Code', 'Proje Bilgisi', 'Project Info',
-                    'MSM', 'MKM', 'Model Sanayi', 'Model Kuyum'
+                    'PROJECT_B', 'PROJECT_A', 'Model Sanayi', 'Model Kuyum'
                 ]
             },
             'amount': {
@@ -84,7 +84,7 @@ class CRMProcessor:
                     'Ödeme Yöntemi', 'Payment Type', 'Ödeme Türü',
                     'Hesap', 'Account', 'Hesap Adı', 'Account Name',
                     'Banka', 'Bank', 'Yapı Kredi', 'Garanti', 'İş Bankası',
-                    'Çarşı', 'Kuyumcukent', 'Ofis', 'Kasa', 'Nakit'
+                    'Çarşı', 'LOCATION_B', 'LOCATION_C', 'Kasa', 'Nakit'
                 ]
             }
         }
@@ -94,8 +94,8 @@ class CRMProcessor:
             'Yapı Kredi TL': 'Yapı Kredi TL',
             'Yapı Kredi USD': 'Yapı Kredi USD',
             'Çarşı USD': 'Çarşı USD',
-            'Kuyumcukent USD': 'Kuyumcukent USD',
-            'Ofis Kasa': 'Ofis Kasa',
+            'LOCATION_B USD': 'LOCATION_B USD',
+            'LOCATION_C Kasa': 'LOCATION_C Kasa',
             'Garanti TL': 'Garanti TL',
             'İş Bankası TL': 'İş Bankası TL',
             'Nakit': 'Nakit',
@@ -219,12 +219,12 @@ class CRMProcessor:
         # Enhanced keyword matching with robust Turkish character handling
         channel_lower = channel_str.lower()
         
-        # KUYUMCUKENT detection
-        if any(keyword in channel_lower for keyword in ['kuyumcukent', 'kuyumcu kent', 'kuyumcu_kent']):
+        # LOCATION_B detection
+        if any(keyword in channel_lower for keyword in ['LOCATION_B', 'kuyumcu kent', 'kuyumcu_kent']):
             if 'usd' in channel_lower or 'dolar' in channel_lower:
-                return 'KUYUMCUKENT USD'
+                return 'LOCATION_B USD'
             else:
-                return 'KUYUMCUKENT'
+                return 'LOCATION_B'
         
         # ÇARŞI detection with multiple character encodings
         elif any(keyword in channel_lower for keyword in [
@@ -243,7 +243,7 @@ class CRMProcessor:
                 return 'YAPI KREDİ TL'
         
         # OFİS/KASA detection
-        elif any(keyword in channel_lower for keyword in ['ofis', 'ofiş', 'ofýs', 'kasa', 'office']):
+        elif any(keyword in channel_lower for keyword in ['LOCATION_C', 'ofiş', 'ofýs', 'kasa', 'office']):
             return 'OFİS KASA'
         
         # Other bank detections
